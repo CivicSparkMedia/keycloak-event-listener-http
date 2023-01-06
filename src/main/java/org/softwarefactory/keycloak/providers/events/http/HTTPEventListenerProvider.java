@@ -23,12 +23,12 @@ import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
 import org.keycloak.events.admin.OperationType;
 
+import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 import java.lang.Exception;
 
 import okhttp3.*;
-import okhttp3.OkHttpClient.Builder;
 
 import java.io.IOException;
 
@@ -44,15 +44,13 @@ public class HTTPEventListenerProvider implements EventListenerProvider {
     private String username;
     private String password;
     public static final String publisherId = "keycloak";
-    public String TOPIC;
 
-    public HTTPEventListenerProvider(Set<EventType> excludedEvents, Set<OperationType> excludedAdminOperations, String serverUri, String username, String password, String topic) {
+    public HTTPEventListenerProvider(Set<EventType> excludedEvents, Set<OperationType> excludedAdminOperations, String serverUri, String username, String password) {
         this.excludedEvents = excludedEvents;
         this.excludedAdminOperations = excludedAdminOperations;
         this.serverUri = serverUri;
         this.username = username;
         this.password = password;
-        this.TOPIC = topic;
     }
 
     @Override
@@ -64,15 +62,14 @@ public class HTTPEventListenerProvider implements EventListenerProvider {
             String stringEvent = toString(event);
             try {
 
-            	okhttp3.RequestBody jsonRequestBody = okhttp3.RequestBody.create(JSON, stringEvent);
+            	okhttp3.RequestBody jsonRequestBody = okhttp3.RequestBody.create(stringEvent, JSON);
 
                 okhttp3.Request.Builder builder = new Request.Builder()
                         .url(this.serverUri)
                         .addHeader("User-Agent", "KeycloakHttp Bot");
             	
-
                 if (this.username != null && this.password != null) {
-                	builder.addHeader("Authorization", "Basic " + this.username + ":" + this.password.toCharArray());
+                	builder.addHeader("Authorization", this.getAuthHeader());
                 }
                 
                 Request request = builder.post(jsonRequestBody)
@@ -105,15 +102,14 @@ public class HTTPEventListenerProvider implements EventListenerProvider {
             String stringEvent = toString(event);
 
             try {
-            	okhttp3.RequestBody jsonRequestBody = okhttp3.RequestBody.create(JSON, stringEvent);
+            	okhttp3.RequestBody jsonRequestBody = okhttp3.RequestBody.create(stringEvent, JSON);
 
                 okhttp3.Request.Builder builder = new Request.Builder()
                         .url(this.serverUri)
                         .addHeader("User-Agent", "KeycloakHttp Bot");
             	
-
                 if (this.username != null && this.password != null) {
-                	builder.addHeader("Authorization", "Basic " + this.username + ":" + this.password.toCharArray());
+                	builder.addHeader("Authorization", this.getAuthHeader());
                 }
                 
                 Request request = builder.post(jsonRequestBody)
@@ -137,6 +133,11 @@ public class HTTPEventListenerProvider implements EventListenerProvider {
         }
     }
 
+    private String getAuthHeader() {
+        String token = this.username + ":" + this.password;
+        String encodedToken = Base64.getEncoder().encodeToString(token.getBytes());
+        return "Basic " + encodedToken;
+    }
 
     private String toString(Event event) {
         StringBuilder sb = new StringBuilder();
@@ -177,8 +178,7 @@ public class HTTPEventListenerProvider implements EventListenerProvider {
 
         return sb.toString();
     }
-    
-    
+        
     private String toString(AdminEvent adminEvent) {
         StringBuilder sb = new StringBuilder();
 
