@@ -173,8 +173,8 @@ public class HTTPEventListenerProvider implements EventListenerProvider {
                 }
                 i = i + 1;
             }
-        sb.append("}}");
         }
+        sb.append("}}");
 
         return sb.toString();
     }
