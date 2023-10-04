@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <groupId>org.softwarefactory.keycloak.providers.events.http</groupId>
-    <version>5.0.0</version>
+    <version>22.0.0</version>
 
     <name>Keycloak: Event Publisher to HTTP</name>
     <description/>
@@ -28,7 +28,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <version.wildfly>14.0.1.Final</version.wildfly>
+        <version.wildfly>27.0.1.Final</version.wildfly>
         <version.keycloak>${project.version}</version.keycloak>
 
         <version.wildfly.maven.plugin>1.2.2.Final</version.wildfly.maven.plugin>
@@ -68,6 +68,7 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-core</artifactId>
             <version>${version.keycloak}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.keycloak</groupId>
@@ -158,6 +159,11 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+                                        <excludes>
+						<exclude>org.keycloak:keycloak-core</exclude>
+						<exclude>org.keycloak:keycloak-server-spi</exclude>
+						<exclude>org.keycloak:keycloak-server-spi-private</exclude>
+					</excludes>
 				</configuration>
 				<executions>
 				  <execution>
